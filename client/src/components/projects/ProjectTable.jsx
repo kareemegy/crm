@@ -30,7 +30,7 @@ export default function ProjectTable({
       render: r => r.category_name || <span className="text-ink-muted dark:text-night-muted">—</span> },
     { key: 'assignee_name', header: 'Assignee',
       render: r => r.assignee_name || <span className="text-ink-muted dark:text-night-muted">—</span> },
-    { key: 'video_count', header: 'NOV',
+    { key: 'video_count', header: 'Services',
       sortValue: r => r.video_count,
       render: r => (
         <span className="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full

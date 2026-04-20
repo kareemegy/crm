@@ -13,7 +13,8 @@ const clients = [
   { name: 'Initech',        email: 'support@initech.com',  phone: '555-0300' }
 ];
 
-const insertCategory = db.prepare('INSERT OR IGNORE INTO categories (name) VALUES (?)');
+const insertCategory    = db.prepare('INSERT OR IGNORE INTO categories (name) VALUES (?)');
+const insertServiceType = db.prepare('INSERT OR IGNORE INTO service_types (name) VALUES (?)');
 const insertEmployee = db.prepare('INSERT INTO employees (name, email, role) VALUES (?, ?, ?)');
 const insertClient   = db.prepare('INSERT INTO clients (name, email, phone) VALUES (?, ?, ?)');
 const insertProject  = db.prepare(`
@@ -27,6 +28,7 @@ const anyClients   = db.prepare('SELECT COUNT(*) AS c FROM clients').get().c > 0
 
 db.transaction(() => {
   categories.forEach(c => insertCategory.run(c));
+  ['Reel','Podcast','Design','Script','Long Video'].forEach(n => insertServiceType.run(n));
   if (!anyEmployees) employees.forEach(e => insertEmployee.run(e.name, e.email, e.role));
 
   if (!anyClients) {

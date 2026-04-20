@@ -91,8 +91,8 @@ export default function ProjectDetail() {
           </div>
         </div>
 
-        {/* Money row: three inline boxes, stacking at the smallest sizes. */}
-        <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-4 sm:gap-6
+        {/* Money row: three boxed cards, stacking at the smallest sizes. */}
+        <div className="grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-4
                         mt-5 pt-5 border-t border-ink-border dark:border-night-border">
           <MoneyBox label="Income Received" value={money(received)}  tone="emerald" />
           <MoneyBox label="Expected"        value={money(remaining)} tone="amber"   />
@@ -102,11 +102,11 @@ export default function ProjectDetail() {
         {/* Secondary facts. */}
         <dl className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4
                        mt-5 pt-5 border-t border-ink-border dark:border-night-border">
-          <Stat label="NOV"           value={p.video_count} />
-          <Stat label="Delivery"      value={shortDate(p.delivery_date)} />
-          <Stat label="Assignee"      value={p.assignee_name || '—'} />
-          <Stat label="Created"       value={shortDate(p.created_at)} />
-          <Stat label="Last Updated"  value={shortDate(p.updated_at)} />
+          <Stat label="Services"     value={p.video_count} />
+          <Stat label="Delivery"     value={shortDate(p.delivery_date)} />
+          <Stat label="Assignee"     value={p.assignee_name || '—'} />
+          <Stat label="Created"      value={shortDate(p.created_at)} />
+          <Stat label="Last Updated" value={shortDate(p.updated_at)} />
         </dl>
 
         {p.notes && (
@@ -127,13 +127,21 @@ export default function ProjectDetail() {
 // Compact money box used in the project hero. Accent color carries meaning:
 // emerald = collected, amber = still expected, neutral = overall budget.
 function MoneyBox({ label, value, tone }) {
+  const toneAccent = {
+    emerald: 'border-l-emerald-500 dark:border-l-emerald-400',
+    amber:   'border-l-amber-500   dark:border-l-amber-400',
+    neutral: 'border-l-ink-border  dark:border-l-night-border'
+  }[tone];
   const valueClass = {
     emerald: 'bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent',
     amber:   'text-amber-600 dark:text-amber-400',
     neutral: 'text-ink-text dark:text-night-text'
   }[tone];
   return (
-    <div className="min-w-0">
+    <div className={`min-w-0 rounded-lg p-3 sm:p-4 border-l-[3px]
+                     bg-ink-surface/60 dark:bg-night-raised/40
+                     border-y border-r border-ink-border/70 dark:border-night-border/70
+                     ${toneAccent}`}>
       <div className="text-[11px] uppercase tracking-wide font-medium text-ink-muted dark:text-night-muted">
         {label}
       </div>
