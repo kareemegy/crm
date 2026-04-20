@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+
+/* Tell the browser to render native controls (select dropdowns, date pickers,
+   scrollbars) in a dark palette when we're in dark mode. Without this, the
+   native <select> options popup stays white. */
+html       { color-scheme: light; }
+html.dark  { color-scheme: dark; }
+
+body {
+  @apply bg-ink-bg text-ink-text antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
+
+html.dark body {
+  @apply bg-night-bg text-night-text;
+}
+
+/* Belt-and-suspenders for browsers that don't fully honor color-scheme on
+   <option> rendering. */
+html.dark select option {
+  background-color: #202020;
+  color: #e6e6e6;
+}
+
+/* Smooth theme swap without transitioning transforms (keeps button presses snappy). */
+html, body, aside, header, main, section, div, table, tr, td, th, button, input, select, textarea, span, a {
+  transition-property: background-color, border-color, color, box-shadow, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Custom scrollbar (subtle, Notion-like) */
+::-webkit-scrollbar         { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb   { background: rgba(120,120,120,0.25); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(120,120,120,0.5); background-clip: content-box; }
+::-webkit-scrollbar-track   { background: transparent; }
+
+/* Focus ring consistency */
+:focus-visible { outline: none; }
