@@ -260,9 +260,12 @@ function ServiceInlineForm({ initial = null, serviceTypes = [], onSubmit, onCanc
 
   return (
     <form onSubmit={submit}
-          className="mb-3 p-4 rounded-lg animate-slide-up space-y-3
-                     bg-ink-surface dark:bg-night-raised
-                     border border-ink-border dark:border-night-border">
+          className="mb-3 p-4 rounded-xl animate-slide-up space-y-3
+                     bg-gradient-to-b from-ink-surface to-ink-surface/60
+                     dark:from-night-raised dark:to-night-raised/40
+                     border-2 border-ink-border/80 dark:border-night-border/70
+                     shadow-lg shadow-black/5 dark:shadow-black/30
+                     ring-1 ring-black/5 dark:ring-white/5">
       {/* Row 1: title (full) */}
       <Input placeholder="Service title" autoFocus
              value={form.name}  onChange={set('name')}

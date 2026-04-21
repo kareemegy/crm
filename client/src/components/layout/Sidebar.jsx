@@ -35,9 +35,7 @@ export default function Sidebar() {
                     ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
         <div className="h-14 flex items-center px-4 border-b border-ink-border dark:border-night-border">
-          <div className="h-7 w-7 rounded-md bg-gradient-to-br from-accent-500 to-accent-700 text-white
-                          flex items-center justify-center font-semibold text-sm mr-2 shadow-soft">C</div>
-          <span className="font-semibold text-[15px]">CRM Suite</span>
+          <span className="font-semibold text-[15px]">Tik agency CRM</span>
         </div>
 
         <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
@@ -61,9 +59,6 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        <div className="px-4 py-3 text-[11px] text-ink-muted dark:text-night-muted border-t border-ink-border dark:border-night-border">
-          v1.0 · lightweight
-        </div>
       </aside>
     </>
   );

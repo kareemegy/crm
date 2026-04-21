@@ -1,0 +1,74 @@
+{
+  "name": "crm-desktop",
+  "version": "1.0.0",
+  "description": "Electron desktop wrapper for the CRM system",
+  "main": "src/main.cjs",
+  "scripts": {
+    "build:client": "cross-env VITE_DESKTOP=1 VITE_API_BASE_URL=http://localhost:14317 npm --prefix ../client run build",
+    "seed": "node scripts/seed.cjs",
+    "rebuild-native": "electron-rebuild -f -w better-sqlite3 -m ../server",
+    "postinstall": "electron-builder install-app-deps && npm run rebuild-native",
+    "start": "electron .",
+    "dev": "npm run build:client && electron .",
+    "dist": "npm run build:client && electron-builder",
+    "dist:win": "npm run build:client && electron-builder --win",
+    "dist:mac": "npm run build:client && electron-builder --mac",
+    "dist:linux": "npm run build:client && electron-builder --linux"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.crm.desktop",
+    "productName": "CRM Desktop",
+    "asar": true,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../server",
+        "to": "server",
+        "filter": [
+          "src/**/*",
+          "package.json",
+          "node_modules/**/*",
+          "!node_modules/**/test/**",
+          "!node_modules/**/*.md",
+          "!node_modules/**/*.ts"
+        ]
+      },
+      {
+        "from": "../client/dist",
+        "to": "client/dist"
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
