@@ -1,0 +1,31 @@
+# Fly.io config for the CRM API.
+# `app` name is set by `flyctl launch` the first time you deploy.
+# Scale-to-zero keeps cost near $0 for low-traffic use — the machine
+# starts on first request (~1s cold start) and stops after a few minutes idle.
+
+primary_region = "fra"  # Frankfurt — closest to MENA. Override if launch suggests closer.
+
+[build]
+
+[env]
+  DB_FILE  = "/var/data/crm.db"
+  NODE_ENV = "production"
+  # Permissive CORS so desktop (file://), web, and Capacitor (capacitor://localhost)
+  # can all reach the API. Tighten later if you add auth.
+  CORS_ORIGIN = "*"
+
+[http_service]
+  internal_port        = 4000
+  force_https          = true
+  auto_stop_machines   = "stop"
+  auto_start_machines  = true
+  min_machines_running = 0
+
+[[mounts]]
+  source      = "crm_data"
+  destination = "/var/data"
+
+[[vm]]
+  cpu_kind  = "shared"
+  cpus      = 1
+  memory_mb = 256
