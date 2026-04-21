@@ -1,0 +1,81 @@
+name: Android APK
+
+on:
+  # Manual trigger from the Actions tab — lets you pass the API URL per build.
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'Deployed API base URL (e.g. https://crm-api.onrender.com). Baked into the APK at build time.'
+        required: true
+        type: string
+  # Auto-build on main so a debug APK is always available.
+  push:
+    branches: [main]
+    paths:
+      - 'client/**'
+      - 'mobile/**'
+      - '.github/workflows/android-apk.yml'
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            client/package-lock.json
+            mobile/package-lock.json
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install client deps
+        working-directory: client
+        run: npm ci
+
+      - name: Build client bundle
+        working-directory: client
+        env:
+          # Use workflow input when triggered manually; fall back to the repo secret
+          # for auto-builds on push (set API_BASE_URL in repo Secrets → Actions).
+          VITE_API_BASE_URL: ${{ github.event.inputs.api_base_url || secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::warning::No API base URL provided — APK will not reach any backend. Set repo secret API_BASE_URL or trigger manually with an input."
+          fi
+          npm run build
+
+      - name: Install mobile deps
+        working-directory: mobile
+        run: npm ci
+
+      - name: Sync web assets into Android project
+        working-directory: mobile
+        run: npx cap sync android
+
+      - name: Grant execute on gradlew
+        working-directory: mobile/android
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crm-debug-apk
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,22 @@
+{
+  "name": "crm-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor wrapper that ships the CRM client as an Android APK",
+  "scripts": {
+    "build:client": "cross-env VITE_API_BASE_URL=%VITE_API_BASE_URL% npm --prefix ../client run build",
+    "build:client:posix": "VITE_API_BASE_URL=\"$VITE_API_BASE_URL\" npm --prefix ../client run build",
+    "sync": "cap sync android",
+    "build": "npm run build:client:posix && npm run sync",
+    "open:android": "cap open android",
+    "apk:debug": "cd android && ./gradlew assembleDebug"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "cross-env": "^7.0.3"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  }
+}

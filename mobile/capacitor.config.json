@@ -1,0 +1,12 @@
+{
+  "appId": "com.crm.mobile",
+  "appName": "CRM",
+  "webDir": "../client/dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

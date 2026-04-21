@@ -6,8 +6,11 @@ import { categoryController    } from '../controllers/categoryController.js';
 import { employeeController    } from '../controllers/employeeController.js';
 import { reportController      } from '../controllers/reportController.js';
 import { serviceTypeController } from '../controllers/serviceTypeController.js';
+import eventsRouter             from './events.js';
 
 const router = Router();
+
+router.use(eventsRouter);
 
 // Clients
 router.get   ('/clients',     clientController.list);

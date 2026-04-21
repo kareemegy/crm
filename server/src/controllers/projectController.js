@@ -1,5 +1,6 @@
 import { projectService } from '../services/projectService.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { broadcast } from '../events/eventBus.js';
 
 export const projectController = {
   list: asyncHandler((req, res) => {
@@ -18,7 +19,20 @@ export const projectController = {
   }),
 
   get:    asyncHandler((req, res) => res.json(projectService.get(Number(req.params.id)))),
-  create: asyncHandler((req, res) => res.status(201).json(projectService.create(req.body))),
-  update: asyncHandler((req, res) => res.json(projectService.update(Number(req.params.id), req.body))),
-  remove: asyncHandler((req, res) => { projectService.remove(Number(req.params.id)); res.status(204).end(); })
+  create: asyncHandler((req, res) => {
+    const row = projectService.create(req.body);
+    broadcast('projects.created', { id: row.id, name: row.name });
+    res.status(201).json(row);
+  }),
+  update: asyncHandler((req, res) => {
+    const row = projectService.update(Number(req.params.id), req.body);
+    broadcast('projects.updated', { id: row.id, name: row.name });
+    res.json(row);
+  }),
+  remove: asyncHandler((req, res) => {
+    const id = Number(req.params.id);
+    projectService.remove(id);
+    broadcast('projects.deleted', { id });
+    res.status(204).end();
+  })
 };

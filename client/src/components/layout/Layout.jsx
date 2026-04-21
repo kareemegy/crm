@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar.jsx';
 import TopBar from './TopBar.jsx';
@@ -6,10 +7,17 @@ import {
 } from './LayoutContext.jsx';
 import ClientFormModal from '../clients/ClientFormModal.jsx';
 import { ConfirmProvider } from '../ui/ConfirmDialog.jsx';
+import ToastHost from '../ui/ToastHost.jsx';
+import { startRealtime, stopRealtime } from '../../realtime/sse.js';
 
 function Shell() {
   const { addClientOpen, closeAddClient } = useLayout();
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    startRealtime();
+    return () => stopRealtime();
+  }, []);
 
   return (
     <div className="flex h-full bg-ink-bg dark:bg-night-bg text-ink-text dark:text-night-text">
@@ -28,6 +36,8 @@ function Shell() {
         onClose={closeAddClient}
         onSaved={() => { closeAddClient(); notifyClientsChanged(); }}
       />
+
+      <ToastHost />
     </div>
   );
 }
