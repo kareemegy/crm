@@ -9,6 +9,7 @@ import {
   query, where, orderBy
 } from 'firebase/firestore';
 import { db } from '../firebase/config.js';
+import { withFriendlyErrors } from '../lib/errors.js';
 
 // ---------- helpers -------------------------------------------------------
 
@@ -23,30 +24,38 @@ function queryToRows(snap) {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-async function listAll(col) {
+// Firestore document IDs are strings. Callers sometimes pass numbers or
+// undefined — coerce defensively so an early `indexOf` bug surfaces as a
+// friendly message instead of a minified SDK crash.
+function requireId(id, col) {
+  if (id == null || id === '') throw new Error(`Missing id for ${col}.`);
+  return String(id);
+}
+
+const listAll = withFriendlyErrors(async (col) => {
   return queryToRows(await getDocs(collection(db, col)));
-}
+});
 
-async function getOne(col, id) {
-  return snapshotToRow(await getDoc(doc(db, col, id)));
-}
+const getOne = withFriendlyErrors(async (col, id) => {
+  return snapshotToRow(await getDoc(doc(db, col, requireId(id, col))));
+});
 
-async function createOne(col, data) {
+const createOne = withFriendlyErrors(async (col, data) => {
   const payload = { ...data, created_at: nowISO(), updated_at: nowISO() };
   const ref = await addDoc(collection(db, col), payload);
   return { id: ref.id, ...payload };
-}
+});
 
-async function updateOne(col, id, data) {
+const updateOne = withFriendlyErrors(async (col, id, data) => {
   const payload = { ...data, updated_at: nowISO() };
-  await updateDoc(doc(db, col, id), payload);
-  return getOne(col, id);
-}
+  await updateDoc(doc(db, col, requireId(id, col)), payload);
+  return snapshotToRow(await getDoc(doc(db, col, requireId(id, col))));
+});
 
-async function deleteOne(col, id) {
-  await deleteDoc(doc(db, col, id));
+const deleteOne = withFriendlyErrors(async (col, id) => {
+  await deleteDoc(doc(db, col, requireId(id, col)));
   return null;
-}
+});
 
 function indexBy(arr, key = 'id') {
   return Object.fromEntries(arr.map(x => [x[key], x]));
@@ -100,12 +109,20 @@ async function enrichProjects(projects) {
     return m;
   }, {});
   return projects.map(p => {
-    const stats = aggregateProjectStats(p, videosByProject[p.id] || []);
+    const stats          = aggregateProjectStats(p, videosByProject[p.id] || []);
+    const deposit        = Number(p.deposit_paid) || 0;
+    const price          = stats.effective_price;
+    const received       = stats.effective_received + deposit;
+    const remaining      = Math.max(price - received, 0);
     return {
       ...stats,
       client_name:   cli[p.client_id]?.name   ?? null,
       category_name: cat[p.category_id]?.name ?? null,
-      assignee_name: emp[p.assignee_id]?.name ?? null
+      assignee_name: emp[p.assignee_id]?.name ?? null,
+      // Aliases consumed by ProjectDetail / Dashboard widgets.
+      price,
+      received,
+      remaining
     };
   });
 }

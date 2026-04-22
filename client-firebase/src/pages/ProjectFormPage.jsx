@@ -19,7 +19,7 @@ export default function ProjectFormPage() {
   const navigate = useNavigate();
 
   const isEdit         = !!id;
-  const projectId      = isEdit ? Number(id) : null;
+  const projectId      = isEdit ? id : null;
   const lockedClientId = params.get('clientId');
 
   const existing = useAsync(

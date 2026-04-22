@@ -12,7 +12,7 @@ import { Skeleton, ErrorText } from './Dashboard.jsx';
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const projectId = Number(id);
+  const projectId = id;
   const confirm   = useConfirm();
   const goBack    = useSmartBack('/');
 

@@ -14,7 +14,7 @@ import { Skeleton, ErrorText } from './Dashboard.jsx';
 export default function ClientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const clientId = Number(id);
+  const clientId = id;
   const confirm  = useConfirm();
   const goBack   = useSmartBack('/clients');
 

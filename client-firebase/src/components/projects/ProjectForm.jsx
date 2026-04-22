@@ -186,11 +186,13 @@ function toForm(p, lockedClientId) {
 // stored status/deposit are preserved on edit and default to neutral values
 // on create. The project's effective status comes from its videos.
 function toPayload(f, initial) {
+  // Firestore doc IDs are strings — never coerce to Number (that yields NaN
+  // and trips internal SDK checks with a cryptic "indexOf is not a function").
   return {
     name:           f.name.trim(),
-    client_id:      Number(f.client_id),
-    category_id:    f.category_id ? Number(f.category_id) : null,
-    assignee_id:    f.assignee_id ? Number(f.assignee_id) : null,
+    client_id:      f.client_id   || null,
+    category_id:    f.category_id || null,
+    assignee_id:    f.assignee_id || null,
     payment_status: initial?.payment_status ?? 'Pending',
     deposit_paid:   0,
     delivery_date:  f.delivery_date || null,

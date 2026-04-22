@@ -247,7 +247,7 @@ function ServiceInlineForm({ initial = null, serviceTypes = [], onSubmit, onCanc
     try {
       await onSubmit({
         name:            form.name.trim(),
-        service_type_id: form.service_type_id ? Number(form.service_type_id) : null,
+        service_type_id: form.service_type_id || null,
         quantity:        qty,
         price:           priceN,
         payment_status:  form.payment_status,
