@@ -6,6 +6,7 @@ import { Input, Select } from '../ui/Field.jsx';
 import TableToolbar from '../ui/TableToolbar.jsx';
 import StatusActions from '../ui/StatusActions.jsx';
 import { useConfirm } from '../ui/ConfirmDialog.jsx';
+import InlineCreatableSelect from '../clients/InlineCreatableSelect.jsx';
 import { money, statusBadgeClass } from '../../lib/format.js';
 
 const STATUSES = ['Completed', 'Deposit', 'Pending'];
@@ -178,6 +179,7 @@ export default function VideoSection({ projectId }) {
       {adding && (
         <ServiceInlineForm
           serviceTypes={serviceTypes}
+          reloadServiceTypes={loadServiceTypes}
           onCancel={() => setAdding(false)}
           onSubmit={async (data) => {
             await api.videos.create(projectId, data);
@@ -188,6 +190,7 @@ export default function VideoSection({ projectId }) {
       {editing && (
         <ServiceInlineForm
           serviceTypes={serviceTypes}
+          reloadServiceTypes={loadServiceTypes}
           initial={editing}
           onCancel={() => setEditing(null)}
           onSubmit={async (data) => {
@@ -219,7 +222,7 @@ export default function VideoSection({ projectId }) {
   );
 }
 
-function ServiceInlineForm({ initial = null, serviceTypes = [], onSubmit, onCancel }) {
+function ServiceInlineForm({ initial = null, serviceTypes = [], reloadServiceTypes, onSubmit, onCancel }) {
   const [form, setForm] = useState(() => ({
     name:            initial?.name            ?? '',
     service_type_id: initial?.service_type_id ? String(initial.service_type_id) : '',
@@ -273,14 +276,17 @@ function ServiceInlineForm({ initial = null, serviceTypes = [], onSubmit, onCanc
 
       {/* Row 2: type · qty · price */}
       <div className="grid grid-cols-1 sm:grid-cols-6 gap-2">
-        <Select
-          value={form.service_type_id}
-          onChange={set('service_type_id')}
-          className="sm:col-span-3"
-        >
-          <option value="">Service type…</option>
-          {serviceTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </Select>
+        <div className="sm:col-span-3">
+          <InlineCreatableSelect
+            value={form.service_type_id}
+            onChange={(v) => setForm(f => ({ ...f, service_type_id: v }))}
+            options={serviceTypes}
+            onCreate={(data) => api.serviceTypes.create(data)}
+            onCreated={reloadServiceTypes}
+            createLabel="Add Type"
+            placeholder="Service type…"
+          />
+        </div>
         <Input placeholder="Qty" type="number" min="1" step="1"
                value={form.quantity} onChange={set('quantity')}
                className="sm:col-span-1" />
