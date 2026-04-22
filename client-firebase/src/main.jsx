@@ -3,7 +3,10 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App.jsx';
 import ErrorBoundary from './components/ui/ErrorBoundary.jsx';
+import { setupCapacitorIntegrations } from './integrations/capacitor.js';
 import './index.css';
+
+setupCapacitorIntegrations();
 
 // Electron loads the app via file://, where the History API doesn't work —
 // use HashRouter in that build. The web build still uses BrowserRouter.
