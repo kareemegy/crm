@@ -109,17 +109,20 @@ async function enrichProjects(projects) {
     return m;
   }, {});
   return projects.map(p => {
-    const stats          = aggregateProjectStats(p, videosByProject[p.id] || []);
-    const deposit        = Number(p.deposit_paid) || 0;
-    const price          = stats.effective_price;
-    const received       = stats.effective_received + deposit;
-    const remaining      = Math.max(price - received, 0);
+    const stats     = aggregateProjectStats(p, videosByProject[p.id] || []);
+    const deposit   = Number.isFinite(Number(p.deposit_paid)) ? Number(p.deposit_paid) : 0;
+    const price     = Number.isFinite(stats.effective_price)    ? stats.effective_price    : 0;
+    const received  = Number.isFinite(stats.effective_received + deposit)
+                        ? stats.effective_received + deposit
+                        : 0;
+    const remaining = Math.max(price - received, 0);
     return {
       ...stats,
       client_name:   cli[p.client_id]?.name   ?? null,
       category_name: cat[p.category_id]?.name ?? null,
       assignee_name: emp[p.assignee_id]?.name ?? null,
       // Aliases consumed by ProjectDetail / Dashboard widgets.
+      status: p.payment_status ?? 'Pending',
       price,
       received,
       remaining

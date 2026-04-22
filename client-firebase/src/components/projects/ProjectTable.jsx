@@ -19,7 +19,7 @@ export default function ProjectTable({
         </Link>
       )},
     ...(showClient ? [{ key: 'client_name', header: 'Client',
-      render: r => r.client_id
+      render: r => r.client_id && r.client_name
         ? <Link to={`/clients/${r.client_id}`}
                 className="text-ink-muted dark:text-night-muted hover:text-ink-text dark:hover:text-night-text hover:underline">
             {r.client_name}

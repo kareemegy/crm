@@ -3,7 +3,10 @@ const currency = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD', maximumFractionDigits: 0
 });
 
-export const money = (v) => currency.format(Number(v || 0));
+export const money = (v) => {
+  const n = Number(v);
+  return currency.format(Number.isFinite(n) ? n : 0);
+};
 
 export const shortDate = (iso) => {
   if (!iso) return '—';

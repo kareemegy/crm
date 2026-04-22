@@ -42,10 +42,15 @@ export default function ProjectDetail() {
   if (project.error || !project.data) return <ErrorText text={project.error?.message || 'Project not found.'} />;
 
   const p = project.data;
-  // Money aggregates served by the API.
-  const received  = Number(p.received  ?? 0);  // already collected
-  const remaining = Number(p.remaining ?? 0);  // still expected
-  const budget    = Number(p.price     ?? 0);  // overall project price
+  // Money aggregates served by the API. Number.isFinite guards against any
+  // stray NaN bubbling up from a field that never got set.
+  const toFiniteNumber = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const received  = toFiniteNumber(p.received);
+  const remaining = toFiniteNumber(p.remaining);
+  const budget    = toFiniteNumber(p.price);
 
   return (
     <div className="animate-fade-in">
@@ -67,19 +72,25 @@ export default function ProjectDetail() {
         {/* Title row: status/name on the left, Edit/Delete on the right. */}
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center flex-wrap gap-2 mb-1">
-              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11.5px] font-medium ${statusBadgeClass(p.status)}`}>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-current opacity-70" />
-                {p.status}
-              </span>
-              {p.category_name && (
-                <span className="text-[11.5px] text-ink-muted dark:text-night-muted">
-                  · {p.category_name}
-                </span>
-              )}
-            </div>
-            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight break-words">{p.name}</h1>
-            {p.client_id && (
+            {(p.status || p.category_name) && (
+              <div className="flex items-center flex-wrap gap-2 mb-1">
+                {p.status && (
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11.5px] font-medium ${statusBadgeClass(p.status)}`}>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+                    {p.status}
+                  </span>
+                )}
+                {p.category_name && (
+                  <span className="text-[11.5px] text-ink-muted dark:text-night-muted">
+                    · {p.category_name}
+                  </span>
+                )}
+              </div>
+            )}
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight break-words">
+              {p.name || 'Untitled project'}
+            </h1>
+            {p.client_id && p.client_name && (
               <div className="mt-1 text-[13px] text-ink-muted dark:text-night-muted">
                 for <Link to={`/clients/${p.client_id}`} className="underline decoration-accent-500 decoration-2 underline-offset-2 hover:text-ink-text dark:hover:text-night-text break-words">{p.client_name}</Link>
               </div>
@@ -102,7 +113,7 @@ export default function ProjectDetail() {
         {/* Secondary facts. */}
         <dl className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4
                        mt-5 pt-5 border-t border-ink-border dark:border-night-border">
-          <Stat label="Services"     value={p.video_count} />
+          <Stat label="Services"     value={Number.isFinite(Number(p.video_count)) ? p.video_count : 0} />
           <Stat label="Delivery"     value={shortDate(p.delivery_date)} />
           <Stat label="Assignee"     value={p.assignee_name || '—'} />
           <Stat label="Created"      value={shortDate(p.created_at)} />
