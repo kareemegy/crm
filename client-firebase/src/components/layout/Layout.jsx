@@ -8,6 +8,7 @@ import {
 import ClientFormModal from '../clients/ClientFormModal.jsx';
 import { ConfirmProvider } from '../ui/ConfirmDialog.jsx';
 import ToastHost from '../ui/ToastHost.jsx';
+import SplashScreen from '../ui/SplashScreen.jsx';
 import { startRealtime, stopRealtime } from '../../realtime/firestore.js';
 
 function Shell() {
@@ -38,6 +39,7 @@ function Shell() {
       />
 
       <ToastHost />
+      <SplashScreen />
     </div>
   );
 }

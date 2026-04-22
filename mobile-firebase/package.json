@@ -1,0 +1,21 @@
+{
+  "name": "crm-mobile-firebase",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor wrapper that ships client-firebase/ (Firestore data layer) as an Android APK",
+  "scripts": {
+    "sync": "cap sync android",
+    "generate-assets": "capacitor-assets generate --android",
+    "open:android": "cap open android",
+    "apk:debug": "cd android && ./gradlew assembleDebug"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/splash-screen": "^6.0.2"
+  }
+}

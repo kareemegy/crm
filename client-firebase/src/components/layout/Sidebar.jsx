@@ -34,8 +34,14 @@ export default function Sidebar() {
                     transition-transform duration-200 ease-out
                     ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
-        <div className="h-14 flex items-center px-4 border-b border-ink-border dark:border-night-border">
-          <span className="font-semibold text-[15px]">Tik agency CRM</span>
+        <div className="h-14 flex items-center gap-2.5 px-4 border-b border-ink-border dark:border-night-border">
+          <img
+            src="/logo.png"
+            alt=""
+            className="w-7 h-7 rounded-full shrink-0"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          <span className="font-semibold text-[15px] truncate">Tik agency CRM</span>
         </div>
 
         <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
