@@ -234,24 +234,41 @@ async function loadReportData() {
 }
 
 const reports = {
+  // All three widgets aggregate at the *service* (video) level — users mark
+  // individual services Completed/Deposit, not the whole project, so that's
+  // where the real money state lives. Falls back to the parent project's
+  // delivery_date/created_at for the month bucket when the service itself
+  // doesn't have one.
   summary: async () => {
     const { projects, videos } = await loadReportData();
+    const projectById = Object.fromEntries(projects.map(p => [p.id, p]));
     const now = new Date();
     const curMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     let incomeThisMonth = 0, depositedMoney = 0, pendingMoney = 0;
-    for (const p of projects) {
-      const m = (p.delivery_date || p.created_at || '').slice(0, 7);
-      if (p.payment_status === 'Completed' && m === curMonth) incomeThisMonth += p.effective_price;
-      pendingMoney += Math.max(
-        p.effective_price - ((Number(p.deposit_paid) || 0) + p.effective_received),
-        0
-      );
-      if (p.payment_status === 'Deposit') depositedMoney += Number(p.deposit_paid) || 0;
-    }
+
+    // Income + deposits: per service.
     for (const v of videos) {
-      if (v.payment_status === 'Deposit') depositedMoney += Number(v.deposit_paid) || 0;
+      const price   = Number(v.price)        || 0;
+      const deposit = Number(v.deposit_paid) || 0;
+      const parent  = projectById[v.project_id];
+      const monthSource = v.delivery_date || parent?.delivery_date || v.created_at || parent?.created_at || '';
+      const m = String(monthSource).slice(0, 7);
+
+      if (v.payment_status === 'Completed' && m === curMonth) incomeThisMonth += price;
+      if (v.payment_status === 'Deposit')                     depositedMoney  += deposit;
     }
+
+    // Pending: total outstanding across all projects (effective_price already
+    // rolls up the service prices, effective_received already rolls up the
+    // completed + deposit money).
+    for (const p of projects) {
+      const price    = Number(p.effective_price)    || 0;
+      const received = Number(p.effective_received) || 0;
+      const deposit  = Number(p.deposit_paid)       || 0;
+      pendingMoney += Math.max(price - received - deposit, 0);
+    }
+
     return { incomeThisMonth, depositedMoney, pendingMoney };
   },
 
@@ -297,13 +314,18 @@ const reports = {
   },
 
   monthly: async () => {
-    const { projects } = await loadReportData();
+    const { projects, videos } = await loadReportData();
+    const projectById = Object.fromEntries(projects.map(p => [p.id, p]));
     const byMonth = {};
-    for (const p of projects) {
-      if (p.payment_status !== 'Completed') continue;
-      const m = (p.delivery_date || p.created_at || '').slice(0, 7);
+    for (const v of videos) {
+      if (v.payment_status !== 'Completed') continue;
+      const price = Number(v.price) || 0;
+      const parent = projectById[v.project_id];
+      const m = String(
+        v.delivery_date || parent?.delivery_date || v.created_at || parent?.created_at || ''
+      ).slice(0, 7);
       if (!m) continue;
-      byMonth[m] = (byMonth[m] || 0) + p.effective_price;
+      byMonth[m] = (byMonth[m] || 0) + price;
     }
     return Object.entries(byMonth)
       .sort(([a], [b]) => b.localeCompare(a))
